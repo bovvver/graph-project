@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import mq from "../../../assets/responsiveDesign";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const MenuBody = styled.div`
     padding-bottom: 1em;
@@ -22,4 +23,8 @@ export const MenuBody = styled.div`
         border-left: 4px solid ${({ theme }) => theme.colors.blue};
         border-right: 4px solid ${({ theme }) => theme.colors.blue};
     }
+`;
+
+export const StyledIcon = styled(FontAwesomeIcon)`
+    pointer-events: none;
 `;

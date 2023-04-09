@@ -3,12 +3,15 @@ import GlobalStyle from "../assets/globalStyle";
 import { ThemeProvider } from "styled-components";
 import theme from "../assets/theme";
 import Main from "../components/organisms/Main/Main";
+import ContextProvider from "../providers/ContextsProvider";
 
 const Root = (): JSX.Element => {
     return (
         <ThemeProvider theme={theme}>
-            <GlobalStyle />
-            <Main />
+            <ContextProvider>
+                <GlobalStyle />
+                <Main />
+            </ContextProvider>
         </ThemeProvider>
     );
 };

@@ -15,13 +15,15 @@ const GlobalStyle = createGlobalStyle`
 
     body{
         font-family: 'Chivo Mono', monospace;
+        overflow: hidden;
+        height: 100vh;
+        weight: 100%;
     }
     
     #app{
         position: relative;
         width: 100%;
-        min-height: 100vh;
-        overflow-x: hidden;
+        height: 100%;
         background-color: #020c1b;
         color: #0080ff;
     }

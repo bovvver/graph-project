@@ -9,5 +9,6 @@
   </head>
   <body>
     @inertia
+    <div id="actionPortal"></div>
   </body>
 </html>
