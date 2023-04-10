@@ -1,4 +1,4 @@
-export interface ChartData {
+export interface ChartInterface {
     labels: string[];
     datasets: [
         {
@@ -8,4 +8,11 @@ export interface ChartData {
             borderWidth: number;
         }
     ];
+}
+
+export interface DatabaseResponse {
+    id: number,
+    name: string;
+    quantity: number;
+    color: string;
 }

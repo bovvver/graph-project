@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { ChangeEvent, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Wrapper, PortalBody, InputBlock } from "./ActionPortal.styles";
 import { ButtonCtx } from "../../../providers/ButtonHandlerContext";
@@ -10,6 +10,9 @@ import {
     ErrorSpan,
 } from "./ActionPortal.styles";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { DataCtx } from "../../../providers/DataContext";
+import axios from "axios";
+import { DatabaseResponse } from "../../../helpers/types";
 
 interface Inputs {
     name: string;
@@ -19,19 +22,84 @@ interface Inputs {
 }
 
 const ActionPortal = () => {
+    //hooks
     const { handleOpen, isOpen, portalType, setOpen } = useContext(ButtonCtx);
-    const formRef = useRef<HTMLFormElement>(null);
-
+    const { data, reloadData } = useContext(DataCtx);
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<Inputs>();
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
-        console.log(data);
-        setOpen(false);
-        if (formRef.current != null) formRef.current.reset();
+
+    // API requests
+
+    const checkForDuplicate = async (name: string) => {
+        const response = await axios.get("/api/main");
+
+        response.data.forEach((el: { name: string }) => {
+            if (el.name === name)
+                throw new Error("This name is already in base.");
+        });
+        return true;
     };
+
+    const addChannel = async ({ name, quantity, color }: Inputs) => {
+        try {
+            if (await checkForDuplicate(name)) {
+                await axios.post("/api/add", {
+                    name,
+                    quantity,
+                    color,
+                });
+                reloadData();
+                setOpen(false);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const deleteChannel = async ({ name }: Inputs) => {
+        try {
+            await axios.delete(`/api/delete/${name}`);
+            reloadData();
+            setOpen(false);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const editChannel = async ({ name, quantity, color }: Inputs) => {
+        try {
+            await axios.put(`/api/edit/${name}`, {
+                name,
+                quantity,
+                color,
+            });
+            reloadData();
+            setOpen(false);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    //submit
+
+    const onSubmit: SubmitHandler<Inputs> = (data) => {
+        switch (portalType) {
+            case "ADD":
+                addChannel(data);
+                break;
+            case "EDIT":
+                editChannel(data);
+                break;
+            case "DELETE":
+                deleteChannel(data);
+                break;
+        }
+    };
+
+    //JSX
 
     return createPortal(
         <Wrapper onClick={handleOpen} isOpen={isOpen}>
@@ -39,7 +107,7 @@ const ActionPortal = () => {
                 <IconContainer onClick={handleOpen}>
                     <StyledIcon icon={faXmark} />
                 </IconContainer>
-                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <h3>{portalType.toLowerCase()}.</h3>
                     {portalType == "ADD" ? (
                         <InputBlock>
@@ -65,11 +133,9 @@ const ActionPortal = () => {
                                 id="name"
                                 placeholder="Name"
                             >
-                                <option value="google">Google</option>
-                                <option value="facebook">Facebook</option>
-                                <option value="instagram">Instagram</option>
-                                <option value="twitter">Twitter</option>
-                                <option value="linkedin">LinkedIn</option>
+                                {data.labels.map((el) => (
+                                    <option value={el}>{el}</option>
+                                ))}
                             </select>
                             {errors.name && (
                                 <ErrorSpan>Name is required.</ErrorSpan>
@@ -86,7 +152,7 @@ const ActionPortal = () => {
                             />
                             <label htmlFor="confirm">
                                 {" "}
-                                I want to delete this canal
+                                I want to delete this channel
                             </label>
                             <br />
                             {errors.confirm && (
