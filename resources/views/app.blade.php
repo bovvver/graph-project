@@ -10,5 +10,6 @@
   <body>
     @inertia
     <div id="actionPortal"></div>
+    <div id="errorPortal"></div>
   </body>
 </html>

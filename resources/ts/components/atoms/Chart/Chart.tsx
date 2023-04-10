@@ -4,6 +4,7 @@ import { Wrapper } from "./Chart.styles";
 import { Chart as ChartJS, ArcElement, Legend } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { DataCtx } from "../../../providers/DataContext";
+import Loading from "../Loading/Loading";
 
 ChartJS.register(ArcElement, Legend, ChartDataLabels);
 
@@ -18,7 +19,11 @@ const Chart = () => {
 
     return (
         <Wrapper>
-            {loading ? null : (
+            {loading ? (
+                <Loading />
+            ) : data.labels.length === 0 ? (
+                <p>Pie chart is empty. Add your <span>first</span> channel!</p>
+            ) : (
                 <Pie
                     data={data}
                     options={{

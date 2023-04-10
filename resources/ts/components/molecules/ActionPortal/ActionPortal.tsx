@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext, useState } from "react";
+import React, { useContext, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Wrapper, PortalBody, InputBlock } from "./ActionPortal.styles";
 import { ButtonCtx } from "../../../providers/ButtonHandlerContext";
@@ -12,7 +12,7 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { DataCtx } from "../../../providers/DataContext";
 import axios from "axios";
-import { DatabaseResponse } from "../../../helpers/types";
+import { ErrorCtx } from "../../../providers/ErrorContext";
 
 interface Inputs {
     name: string;
@@ -23,9 +23,12 @@ interface Inputs {
 
 const ActionPortal = () => {
     //hooks
+    const formRef = useRef(null);
     const { handleOpen, isOpen, portalType, setOpen } = useContext(ButtonCtx);
+    const { handleErrorSlide } = useContext(ErrorCtx);
     const { data, reloadData } = useContext(DataCtx);
     const {
+        reset,
         register,
         handleSubmit,
         formState: { errors },
@@ -37,8 +40,7 @@ const ActionPortal = () => {
         const response = await axios.get("/api/main");
 
         response.data.forEach((el: { name: string }) => {
-            if (el.name === name)
-                throw new Error("This name is already in base.");
+            if (el.name === name) throw new Error();
         });
         return true;
     };
@@ -55,7 +57,7 @@ const ActionPortal = () => {
                 setOpen(false);
             }
         } catch (error) {
-            console.error(error);
+            handleErrorSlide("This name is already in base.");
         }
     };
 
@@ -65,7 +67,7 @@ const ActionPortal = () => {
             reloadData();
             setOpen(false);
         } catch (error) {
-            console.error(error);
+            handleErrorSlide("Error deleting channel. Try again later.");
         }
     };
 
@@ -79,7 +81,7 @@ const ActionPortal = () => {
             reloadData();
             setOpen(false);
         } catch (error) {
-            console.error(error);
+            handleErrorSlide("Error editing channel. Try again later.");
         }
     };
 
@@ -97,6 +99,7 @@ const ActionPortal = () => {
                 deleteChannel(data);
                 break;
         }
+            reset();
     };
 
     //JSX
@@ -107,7 +110,7 @@ const ActionPortal = () => {
                 <IconContainer onClick={handleOpen}>
                     <StyledIcon icon={faXmark} />
                 </IconContainer>
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
                     <h3>{portalType.toLowerCase()}.</h3>
                     {portalType == "ADD" ? (
                         <InputBlock>
@@ -133,6 +136,7 @@ const ActionPortal = () => {
                                 id="name"
                                 placeholder="Name"
                             >
+                                <option value="">--Select channel--</option>
                                 {data.labels.map((el) => (
                                     <option value={el}>{el}</option>
                                 ))}
