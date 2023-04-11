@@ -113,6 +113,10 @@ export const IconContainer = styled.div`
 
 export const CheckBoxContainer = styled.div`
     font-size: 1.5rem;
+
+    label {
+        margin-left: 0.4em;
+    }
 `;
 
 export const ErrorSpan = styled.span`
