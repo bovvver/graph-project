@@ -40,7 +40,7 @@ const ActionPortal = () => {
         const response = await axios.get("/api/main");
 
         response.data.forEach((el: { name: string }) => {
-            if (el.name === name) throw new Error();
+            if (el.name.toLowerCase() === name.toLowerCase()) throw new Error();
         });
         return true;
     };
@@ -99,7 +99,7 @@ const ActionPortal = () => {
                 deleteChannel(data);
                 break;
         }
-            reset();
+        reset();
     };
 
     //JSX
@@ -155,7 +155,6 @@ const ActionPortal = () => {
                                 value="confirm"
                             />
                             <label htmlFor="confirm">
-                                {" "}
                                 I want to delete this channel
                             </label>
                             <br />
